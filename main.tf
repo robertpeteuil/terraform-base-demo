@@ -1,20 +1,27 @@
-#
+terraform {
+  required_version = ">= 0.12"
+}
+
 # INITIALIZE AWS PROVIDER
 provider "aws" {
-  region = "us-west-2"
+  version = "~> 2.69"
+  region  = "us-west-2"
 }
 
 # CREATE AWS INSTANCE (VM)
 resource "aws_instance" "aws_vm" {
-  ami           = "${data.aws_ami.most_recent_ami.id}"
+  ami           = data.aws_ami.most_recent_ami.id
   instance_type = "t2.micro"
-  user_data     = "${file("../scripts/cloud-init.cfg")}"
+  user_data     = file("scripts/cloud-init.cfg")
   key_name      = "rpeteuil"
 
-  vpc_security_group_ids = ["${aws_security_group.ssh.id}"]
+  vpc_security_group_ids = [aws_security_group.ssh.id]
 
-  tags {
-    Name = "test-server-dev"
+  tags = {
+    Name    = "rpeteuil-server-dev"
+    TTL     = "4"
+    owner   = "rpeteuil"
+    project = "demo"
   }
 
   lifecycle {
@@ -34,22 +41,17 @@ data "aws_ami" "most_recent_ami" {
   }
 }
 
-# FIND EXISTING PUBLIC IP
-data "external" "get_local_public_ip" {
-  program = ["sh", "../scripts/get_local_pub_ip.sh"]
-}
-
-# CREATE NETWORK SECURITY GROUP ALLOWING PUBLIC SSH
+# CREATE NETWORK SECURITY GROUP ALLOWING SSH
 resource "aws_security_group" "ssh" {
-  name        = "test-server-dev-ssh"
-  description = "test-server SSH"
+  name        = "rpeteuil-server-dev-ssh"
+  description = "rpeteuil-server SSH"
 
   ingress {
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
-    # cidr_blocks = ["0.0.0.0/0"]
-    cidr_blocks = ["${data.external.get_local_public_ip.result.ip}"]
+
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -59,7 +61,8 @@ resource "aws_security_group" "ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags {
+  tags = {
     Name = "rpeteuil-server-dev-ssh"
   }
 }
+
