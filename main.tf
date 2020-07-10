@@ -1,7 +1,3 @@
-terraform {
-  required_version = ">= 0.12"
-}
-
 # INITIALIZE AWS PROVIDER
 provider "aws" {
   version = "~> 2.69"
@@ -29,16 +25,16 @@ resource "aws_instance" "aws_vm" {
   }
 }
 
-# FIND MOST RECENT IMAGE SPECIFIED
+# FIND MOST RECENT IMAGE
 data "aws_ami" "most_recent_ami" {
-  owners = ["099720109477"]
-
-  most_recent = true
-
   filter {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
   }
+
+  most_recent = true
+
+  owners = ["099720109477"]
 }
 
 # CREATE NETWORK SECURITY GROUP ALLOWING SSH
@@ -66,3 +62,8 @@ resource "aws_security_group" "ssh" {
   }
 }
 
+# DISPLAY PUBLIC IP ADDRESS
+output "instance_ip_address" {
+  description = "Instance IP Address"
+  value       = aws_instance.aws_vm.public_ip
+}
