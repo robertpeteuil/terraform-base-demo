@@ -1,7 +1,6 @@
 # INITIALIZE AWS PROVIDER
 provider "aws" {
-  version = "~> 2.69"
-  region  = "us-west-2"
+  region = "us-west-2"
 }
 
 # CREATE AWS INSTANCE (VM)
@@ -18,10 +17,6 @@ resource "aws_instance" "aws_vm" {
     TTL     = "4"
     owner   = "rpeteuil"
     project = "demo"
-  }
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
