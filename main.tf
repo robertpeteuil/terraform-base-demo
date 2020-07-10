@@ -3,7 +3,7 @@ provider "aws" {
   region = "us-west-2"
 }
 
-# CREATE AWS INSTANCE (VM)
+# CREATE AWS INSTANCE
 resource "aws_instance" "aws_vm" {
   ami           = data.aws_ami.most_recent_ami.id
   instance_type = "t2.micro"
